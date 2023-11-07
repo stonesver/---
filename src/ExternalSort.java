@@ -458,7 +458,6 @@ public class ExternalSort {
 
 
     /* EX4----------------------------------------------败者树实现k路归并，多线程-------------------------------------------------*/
-    //k路归并
     public void generateRuns_EX4(String inputFilePath, int memorySize, int bufferSize) throws IOException {
         Cache[] input = new Cache[2];
         input[0] = new Cache(bufferSize);
@@ -657,6 +656,7 @@ public class ExternalSort {
         }
 
     }
+    //实验4归并排序
     public void EX4_mergeSort(int nodesnum, int buffersize,int filenums) {
         System.out.println("EX4:开始k路归并");
         long startTime = System.currentTimeMillis();
@@ -686,6 +686,7 @@ public class ExternalSort {
         System.out.println("EX4:归并完成");
         System.out.println("EX4:归并时间：" + (endTime - startTime) + "ms");
     }
+    //k路归并
     public void mergeInK_Way(int nodesnum,int buffersize,String outputFileName,int startfile){
         class kwaymerge{
             //初始化缓冲区
@@ -693,7 +694,6 @@ public class ExternalSort {
             Cache[] input = new Cache[nodesnum * 2];
             Cache[] output = new Cache[2];
             int activeoutput = 0;
-            int activeinput = 0;
 
             int needRun=0;
             int[] initial = new int[nodesnum];
@@ -780,9 +780,6 @@ public class ExternalSort {
                                 tick[winner]=0;
                             }
                             tree.replaceWinner(queue[winner].peek().cache[tick[winner]].value);
-                        } else{
-                            //队列为空，说明该队列代表的run已经读取完毕，将败者树的胜者节点替换为最大值
-                            tree.replaceWinner(Integer.MAX_VALUE);
                         }
                         if(outtick==buffersize){
                             out=outtick;
