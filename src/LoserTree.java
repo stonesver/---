@@ -4,7 +4,10 @@ public class LoserTree {
     private int[] tree;
 
     public class Leave{
+        //记录应划分的归并段，用于实验3
         int RunNum=1;
+        //记录败者的索引，用于实验4
+        int FromRun=0;
         int value;
     }
     private int size;
@@ -23,6 +26,7 @@ public class LoserTree {
         for (int i = 0; i < size; i++) {
             this.tree[i] = -1; // Initialize the tree with -1.
             this.leaves[i].value = values[i]; // Initialize the leaves with their indexes.
+            this.leaves[i].FromRun=i;
         }
 
         // Initialize the tree with the values from the leaves.

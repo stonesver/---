@@ -228,9 +228,9 @@ public class ExternalSort {
         input[1] = new Cache(bufferSize);
         Cache output = new Cache(bufferSize);
         Scanner sc = new Scanner(new File(inputFilePath));
-        Cache[] buffer=new Cache[3];
+        Cache[] buffer = new Cache[3];
         for (int i = 0; i < buffer.length; i++) {
-            buffer[i]=new Cache(bufferSize);
+            buffer[i] = new Cache(bufferSize);
         }
         //final int[] activeinput = {0};
         //定义一个int中的最大值
@@ -248,39 +248,39 @@ public class ExternalSort {
         class losertree {
 
             int cur = 1;
-            int inputUsing=0;
-            int loserUsing=1;
+            int inputUsing = 0;
+            int loserUsing = 1;
 
-            int outputUsing=2;
+            int outputUsing = 2;
 
-            boolean allfinish=false;
+            boolean allfinish = false;
 
-            int runsize=0;
+            int runsize = 0;
 
-            int out=0;
+            int out = 0;
 
-            final CyclicBarrier done=new CyclicBarrier(3);
+            final CyclicBarrier done = new CyclicBarrier(3);
 
-            final CyclicBarrier start=new CyclicBarrier(2);
-            final CyclicBarrier waitinput=new CyclicBarrier(2);
+            final CyclicBarrier start = new CyclicBarrier(2);
+            final CyclicBarrier waitinput = new CyclicBarrier(2);
 
-            final CyclicBarrier waitoutput=new CyclicBarrier(2);
+            final CyclicBarrier waitoutput = new CyclicBarrier(2);
 
             long startTime;
             long endTime;
 
-            public losertree(){
-                for(int i=0;i<buffer[loserUsing].cache.length;i++){
-                    if(sc.hasNextInt())
-                        buffer[loserUsing].cache[i].value=sc.nextInt();
+            public losertree() {
+                for (int i = 0; i < buffer[loserUsing].cache.length; i++) {
+                    if (sc.hasNextInt())
+                        buffer[loserUsing].cache[i].value = sc.nextInt();
                     else
-                        buffer[loserUsing].cache[i].value=max;
-                    buffer[loserUsing].cache[i].RunNum=1;
+                        buffer[loserUsing].cache[i].value = max;
+                    buffer[loserUsing].cache[i].RunNum = 1;
                 }
             }
 
 
-            public  void input(){
+            public void input() {
                 System.out.println("EX3:开始拆分排序");
                 startTime = System.currentTimeMillis();
                 try {
@@ -288,13 +288,13 @@ public class ExternalSort {
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
-                while(!allfinish){
-                    for(int i=0;i<buffer[inputUsing].cache.length;i++){
-                        if(sc.hasNextInt())
-                            buffer[inputUsing].cache[i].value=sc.nextInt();
+                while (!allfinish) {
+                    for (int i = 0; i < buffer[inputUsing].cache.length; i++) {
+                        if (sc.hasNextInt())
+                            buffer[inputUsing].cache[i].value = sc.nextInt();
                         else
-                            buffer[inputUsing].cache[i].value=max;
-                        buffer[inputUsing].cache[i].RunNum=1;
+                            buffer[inputUsing].cache[i].value = max;
+                        buffer[inputUsing].cache[i].RunNum = 1;
                     }
                     try {
                         waitinput.await();
@@ -304,7 +304,8 @@ public class ExternalSort {
                     }
                 }
             }
-            public void output()  {
+
+            public void output() {
                 FileWriter fileWriter = null;
                 try {
                     fileWriter = new FileWriter("./EX3_TestFile/run1.txt", true);
@@ -317,15 +318,14 @@ public class ExternalSort {
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
-                while(!allfinish){
+                while (!allfinish) {
                     try {
-                        for(int i=0;i<out;i++)
-                        {
-                            if(cur!=buffer[outputUsing].cache[i].RunNum){
+                        for (int i = 0; i < out; i++) {
+                            if (cur != buffer[outputUsing].cache[i].RunNum) {
                                 fileWriter.close();
-                                runSize.add(cur-1, runsize);
-                                cur=buffer[outputUsing].cache[i].RunNum;
-                                runsize=0;
+                                runSize.add(cur - 1, runsize);
+                                cur = buffer[outputUsing].cache[i].RunNum;
+                                runsize = 0;
                                 fileWriter = new FileWriter("./EX3_TestFile/run" + cur + ".txt", true);
                             }
                             fileWriter.write(buffer[outputUsing].cache[i].value + "\n");
@@ -342,8 +342,8 @@ public class ExternalSort {
                         throw new RuntimeException(e);
                     }
                 }
-                if(cur>1)
-                    runSize.add(cur-1, runsize);
+                if (cur > 1)
+                    runSize.add(cur - 1, runsize);
                 try {
                     fileWriter.close();
                 } catch (IOException e) {
@@ -364,46 +364,47 @@ public class ExternalSort {
                 System.out.println("EX3:归并完成");
                 System.out.println("EX3:归并时间：" + (endTime - startTime) + "ms");
             }
-            public void Losertree(){
+
+            public void Losertree() {
                 try {
                     start.await();
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
-                while(tree.getWinner().value!=max){
+                while (tree.getWinner().value != max) {
                     int Tick = 0;
-                    while (Tick <buffer[loserUsing].cache.length && tree.getWinner().value != max) {
-                        int tempvalue=tree.getWinner().value;
-                        int tempRunNum=tree.getWinner().RunNum;
+                    while (Tick < buffer[loserUsing].cache.length && tree.getWinner().value != max) {
+                        int tempvalue = tree.getWinner().value;
+                        int tempRunNum = tree.getWinner().RunNum;
                         tree.replaceWinner(buffer[loserUsing].cache[Tick].value);
-                        buffer[loserUsing].cache[Tick].value=tempvalue;
-                        buffer[loserUsing].cache[Tick].RunNum=tempRunNum;
+                        buffer[loserUsing].cache[Tick].value = tempvalue;
+                        buffer[loserUsing].cache[Tick].RunNum = tempRunNum;
                         Tick++;
                     }
-                    out=Tick;
-                    if(Tick==buffer[loserUsing].cache.length){
+                    out = Tick;
+                    if (Tick == buffer[loserUsing].cache.length) {
                         try {
-                            int temp=outputUsing;
+                            int temp = outputUsing;
                             waitoutput.await();
-                            outputUsing=loserUsing;
-                            loserUsing=inputUsing;
+                            outputUsing = loserUsing;
+                            loserUsing = inputUsing;
                             waitinput.await();
-                            inputUsing=temp;
+                            inputUsing = temp;
                             done.await();
                         } catch (Exception e) {
                             throw new RuntimeException(e);
                         }
                     }
-                    if(tree.getWinner().value==max){
+                    if (tree.getWinner().value == max) {
                         try {
-                            int temp=outputUsing;
+                            int temp = outputUsing;
                             waitoutput.await();
-                            outputUsing=loserUsing;
+                            outputUsing = loserUsing;
                             waitinput.await();
                             done.await();
                             waitinput.await();
                             waitoutput.await();
-                            allfinish=true;
+                            allfinish = true;
                             done.await();
                         } catch (Exception e) {
                             throw new RuntimeException(e);
@@ -414,14 +415,21 @@ public class ExternalSort {
         }
 
         losertree treeThread = new losertree();
-        Thread inputThread=new Thread(treeThread::input);
-        Thread outputThread=new Thread(treeThread::output);
-        Thread loserThread=new Thread(treeThread::Losertree);
+        Thread inputThread = new Thread(treeThread::input);
+        Thread outputThread = new Thread(treeThread::output);
+        Thread loserThread = new Thread(treeThread::Losertree);
 
         inputThread.start();
         loserThread.start();
         outputThread.start();
 
+        try {
+            inputThread.join();
+            loserThread.join();
+            outputThread.join();
+        } catch (InterruptedException e){
+            e.printStackTrace();
+        }
     }
 
     //EX3测试程序
@@ -450,7 +458,481 @@ public class ExternalSort {
 
 
     /* EX4----------------------------------------------败者树实现k路归并，多线程-------------------------------------------------*/
+    //k路归并
+    public void generateRuns_EX4(String inputFilePath, int memorySize, int bufferSize) throws IOException {
+        Cache[] input = new Cache[2];
+        input[0] = new Cache(bufferSize);
+        input[1] = new Cache(bufferSize);
+        Cache output = new Cache(bufferSize);
+        Scanner sc = new Scanner(new File(inputFilePath));
+        Cache[] buffer = new Cache[3];
+        for (int i = 0; i < buffer.length; i++) {
+            buffer[i] = new Cache(bufferSize);
+        }
+        //final int[] activeinput = {0};
+        //定义一个int中的最大值
+        int max = Integer.MAX_VALUE;
+        final boolean[] isFinish = {false};
+        int[] initial = new int[memorySize];
 
+        for (int i = 0; i < memorySize && sc.hasNext(); i++) {
+            initial[i] = sc.nextInt();
+        }
+        //初始化败者树
+        LoserTree tree = new LoserTree(initial);
+
+        //败者树
+        class losertree {
+
+            int cur = 1;
+            int inputUsing = 0;
+            int loserUsing = 1;
+
+            int outputUsing = 2;
+
+            boolean allfinish = false;
+
+            int runsize = 0;
+
+            int out = 0;
+
+            final CyclicBarrier done = new CyclicBarrier(3);
+
+            final CyclicBarrier start = new CyclicBarrier(2);
+            final CyclicBarrier waitinput = new CyclicBarrier(2);
+
+            final CyclicBarrier waitoutput = new CyclicBarrier(2);
+
+            long startTime;
+            long endTime;
+
+            public losertree() {
+                for (int i = 0; i < buffer[loserUsing].cache.length; i++) {
+                    if (sc.hasNextInt())
+                        buffer[loserUsing].cache[i].value = sc.nextInt();
+                    else
+                        buffer[loserUsing].cache[i].value = max;
+                    buffer[loserUsing].cache[i].RunNum = 1;
+                }
+            }
+
+
+            public void input() {
+                System.out.println("EX4:开始拆分排序");
+                startTime = System.currentTimeMillis();
+                try {
+                    start.await();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                while (!allfinish) {
+                    for (int i = 0; i < buffer[inputUsing].cache.length; i++) {
+                        if (sc.hasNextInt())
+                            buffer[inputUsing].cache[i].value = sc.nextInt();
+                        else
+                            buffer[inputUsing].cache[i].value = max;
+                        buffer[inputUsing].cache[i].RunNum = 1;
+                    }
+                    try {
+                        waitinput.await();
+                        done.await();
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+
+            public void output() {
+                FileWriter fileWriter = null;
+                try {
+                    fileWriter = new FileWriter("./EX4_TestFile/run1.txt", true);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                try {
+                    waitoutput.await();
+                    done.await();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                while (!allfinish) {
+                    try {
+                        for (int i = 0; i < out; i++) {
+                            if (cur != buffer[outputUsing].cache[i].RunNum) {
+                                fileWriter.close();
+                                runSize.add(cur - 1, runsize);
+                                cur = buffer[outputUsing].cache[i].RunNum;
+                                runsize = 0;
+                                fileWriter = new FileWriter("./EX4_TestFile/run" + cur + ".txt", true);
+                            }
+                            fileWriter.write(buffer[outputUsing].cache[i].value + "\n");
+                            runsize++;
+                        }
+                        buffer[outputUsing].reset();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    try {
+                        waitoutput.await();
+                        done.await();
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                if (cur > 1)
+                    runSize.add(cur - 1, runsize);
+                try {
+                    fileWriter.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                endTime = System.currentTimeMillis();
+                System.out.println("EX4:拆分排序完成");
+                System.out.println("EX4:拆分排序时间：" + (endTime - startTime) + "ms");
+            }
+
+            public void Losertree() {
+                try {
+                    start.await();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                while (tree.getWinner().value != max) {
+                    int Tick = 0;
+                    while (Tick < buffer[loserUsing].cache.length && tree.getWinner().value != max) {
+                        int tempvalue = tree.getWinner().value;
+                        int tempRunNum = tree.getWinner().RunNum;
+                        tree.replaceWinner(buffer[loserUsing].cache[Tick].value);
+                        buffer[loserUsing].cache[Tick].value = tempvalue;
+                        buffer[loserUsing].cache[Tick].RunNum = tempRunNum;
+                        Tick++;
+                    }
+                    out = Tick;
+                    if (Tick == buffer[loserUsing].cache.length) {
+                        try {
+                            int temp = outputUsing;
+                            waitoutput.await();
+                            outputUsing = loserUsing;
+                            loserUsing = inputUsing;
+                            waitinput.await();
+                            inputUsing = temp;
+                            done.await();
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                    if (tree.getWinner().value == max) {
+                        try {
+                            int temp = outputUsing;
+                            waitoutput.await();
+                            outputUsing = loserUsing;
+                            waitinput.await();
+                            done.await();
+                            waitinput.await();
+                            waitoutput.await();
+                            allfinish = true;
+                            done.await();
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
+            }
+        }
+
+        losertree treeThread = new losertree();
+        Thread inputThread = new Thread(treeThread::input);
+        Thread outputThread = new Thread(treeThread::output);
+        Thread loserThread = new Thread(treeThread::Losertree);
+
+        inputThread.start();
+        loserThread.start();
+        outputThread.start();
+        try {
+            inputThread.join();
+            loserThread.join();
+            outputThread.join();
+        } catch (InterruptedException e){
+            e.printStackTrace();
+        }
+
+    }
+    public void EX4_mergeSort(int nodesnum, int buffersize,int filenums) {
+        System.out.println("EX4:开始k路归并");
+        long startTime = System.currentTimeMillis();
+
+        //开始k路归并
+        while (filenums>1){
+            int mergeTimes = filenums/nodesnum;
+            if(mergeTimes==0){
+                mergeInK_Way(filenums, buffersize,"./EX4_TestFile/run1.txt",1);
+                break;
+            }
+            for (int i=0;i<mergeTimes;i++){
+                mergeInK_Way(nodesnum, buffersize,"./EX4_TestFile/run"+(i+1)+".txt",i*nodesnum+1);
+            }
+            if(filenums%nodesnum!=0){
+                for(int i=0;i<filenums%nodesnum;i++){
+                    //修改文件名
+                    File file = new File("./EX4_TestFile/run" +(mergeTimes*nodesnum+i+1)+ ".txt");
+                    file.renameTo(new File("./EX4_TestFile/run" + (mergeTimes+i+1) + ".txt"));
+                }
+            }
+            filenums=mergeTimes+filenums%nodesnum;
+        }
+        File file = new File("./EX4_TestFile/run1.txt");
+        file.renameTo(new File("./EX4_TestFile/output.txt"));
+        long endTime = System.currentTimeMillis();
+        System.out.println("EX4:归并完成");
+        System.out.println("EX4:归并时间：" + (endTime - startTime) + "ms");
+    }
+    public void mergeInK_Way(int nodesnum,int buffersize,String outputFileName,int startfile){
+        class kwaymerge{
+            //初始化缓冲区
+            //2k个输入缓冲区，2个输出缓冲区
+            Cache[] input = new Cache[nodesnum * 2];
+            Cache[] output = new Cache[2];
+            int activeoutput = 0;
+            int activeinput = 0;
+
+            int needRun=0;
+            int[] initial = new int[nodesnum];
+            int[] lastkey = new int[nodesnum];
+            //初始化每个结点的队列
+            Queue<Cache>[] queue= new Queue[nodesnum];
+            //将剩下的缓冲区加入队列
+            Queue<Cache> unused = new LinkedList<>();
+            CyclicBarrier start = new CyclicBarrier(2);
+            CyclicBarrier done = new CyclicBarrier(3);
+            CyclicBarrier waitinput = new CyclicBarrier(2);
+            CyclicBarrier waitoutput = new CyclicBarrier(2);
+            LoserTree tree = new LoserTree(initial);
+
+            int out=0;
+
+
+            boolean isFinish=false;
+
+            public kwaymerge(){
+                Arrays.fill(lastkey, Integer.MAX_VALUE);
+                output[0] = new Cache(buffersize);
+                output[1] = new Cache(buffersize);
+                for (int i = 0; i < nodesnum * 2; i++) {
+                    input[i] = new Cache(buffersize);
+                }
+
+                //初始化队列
+                for (int i = 0; i < nodesnum; i++) {
+                    queue[i] = new LinkedList<>();
+                }
+
+                //初始化每个队列第一个缓冲区
+                for (int i = 0; i < nodesnum; i++) {
+                    //依次打开文件读取数据
+                    Scanner sc = null;
+                    try {
+                        sc = new Scanner(new File("./EX4_TestFile/run" + (i +startfile) + ".txt"));
+                        for (int j = 0; j < buffersize; j++) {
+                            if (sc.hasNextInt())
+                                input[i].cache[j].value = sc.nextInt();
+                            else
+                                input[i].cache[j].value = Integer.MAX_VALUE;
+                        }
+                        sc.close();
+                        lastkey[i] = input[i].cache[buffersize - 1].value;
+                        //加入队列
+                        queue[i].add(input[i]);
+                    } catch (FileNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                //从lastkey中找到最小的值，该队列需要再读取一个缓冲区
+                for(int i=0;i<lastkey.length;i++){
+                    if(lastkey[i]<lastkey[needRun]){
+                        needRun=i;
+                    }
+                }
+                //将剩下的缓冲区加入队列
+                unused.addAll(Arrays.asList(input).subList(nodesnum, nodesnum * 2));
+                //初始化败者树
+                for(int i=0;i<nodesnum;i++){
+                    initial[i]=input[i].cache[0].value;
+                }
+                tree = new LoserTree(initial);
+            }
+
+            public void merge(){
+                try {
+                    int[] tick = new int[nodesnum];
+                    int outtick=0;
+                    while(tree.getWinner().value!=Integer.MAX_VALUE){
+                        output[activeoutput].cache[outtick].value= tree.getWinner().value;
+                        outtick++;
+                        int winner=tree.getWinner().FromRun;
+                        tick[winner]++;
+                        //用队列中的缓冲区的值替换败者树的胜者节点
+                        if (queue[winner].peek() != null) {
+                            if(tick[winner]==buffersize){
+                                //将读取完毕的缓冲区加入未使用队列
+                                queue[winner].peek().reset();
+                                unused.add(queue[winner].peek());
+                                queue[winner].poll();
+                                tick[winner]=0;
+                            }
+                            tree.replaceWinner(queue[winner].peek().cache[tick[winner]].value);
+                        } else{
+                            //队列为空，说明该队列代表的run已经读取完毕，将败者树的胜者节点替换为最大值
+                            tree.replaceWinner(Integer.MAX_VALUE);
+                        }
+                        if(outtick==buffersize){
+                            out=outtick;
+                            waitinput.await();
+                            waitoutput.await();
+                            //交换输出缓冲区
+                            activeoutput=1-activeoutput;
+                            outtick=0;
+                            //更新lastkey
+                            if(unused.peek()!=null){
+                                lastkey[needRun] = unused.peek().cache[buffersize - 1].value;
+                                //将已经填充好的输入缓冲区加入最先需要读取的队列
+                                queue[needRun].add(unused.peek());
+                                unused.poll();
+                            }
+                            //重新计算最先需要读取的队列
+                            for(int i=0;i<lastkey.length;i++){
+                                if(lastkey[i]<lastkey[needRun]){
+                                    needRun=i;
+                                } else if(lastkey[i]==lastkey[needRun]){
+                                    if(queue[i].size()<queue[needRun].size())
+                                        needRun=i;
+                                    else if(tick[i]>tick[needRun])
+                                        needRun=i;
+                                }
+                            }
+                            done.await();
+                        }
+                    }
+                    //将最后一个输出缓冲区写入文件
+                    if(outtick!=0){
+                        out=outtick;
+                        waitoutput.await();
+                        waitinput.await();
+                        activeoutput=1-activeoutput;
+                        done.await();
+                        //写完了
+                        waitoutput.await();
+                        waitinput.await();
+                        isFinish=true;
+                        done.await();
+                    } else {
+                        waitoutput.await();
+                        waitinput.await();
+                        isFinish=true;
+                        done.await();
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            public void input(){
+                try {
+                    Scanner[] sc = new Scanner[nodesnum];
+                    for(int i=0;i<nodesnum;i++) {
+                        sc[i]=new Scanner(new File("./EX4_TestFile/run" + (i + startfile) + ".txt"));
+                        //后移一个buffer
+                        for(int j=0;j<buffersize;j++){
+                            sc[i].nextInt();
+                        }
+                    }
+                    while(!isFinish){
+                        if(unused.peek()==null){
+                            waitinput.await();
+                            done.await();
+                        } else {
+                                for (int i = 0; i < buffersize; i++) {
+                                    if (sc[needRun].hasNextInt())
+                                        unused.peek().cache[i].value = sc[needRun].nextInt();
+                                    else
+                                        unused.peek().cache[i].value = Integer.MAX_VALUE;
+                                }
+                        }
+                        waitinput.await();
+                        done.await();
+                    }
+                    //关闭文件并删除
+                    for(int i=0;i<nodesnum;i++){
+                        sc[i].close();
+                        File file = new File("./EX4_TestFile/run" + (i + startfile) + ".txt");
+                        file.delete();
+                    }
+                    start.await();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            public void output(){
+                try {
+                    waitoutput.await();
+                    done.await();
+                    int i=0;
+                    while(!isFinish){
+                        i++;
+                        writeRunToFile(output[1-activeoutput].cache,"./EX4_TestFile/tempfile.txt",out);
+                        output[1-activeoutput].reset();
+                        waitoutput.await();
+                        done.await();
+                    }
+                    start.await();
+                    File file=new File("./EX4_TestFile/tempfile.txt");
+                    file.renameTo(new File(outputFileName));
+                } catch (Exception e){
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        kwaymerge kwaymerge = new kwaymerge();
+        Thread inputThread = new Thread(kwaymerge::input);
+        Thread outputThread = new Thread(kwaymerge::output);
+        Thread mergeThread = new Thread(kwaymerge::merge);
+        inputThread.start();
+        outputThread.start();
+        mergeThread.start();
+        //主线程等待
+        try {
+            inputThread.join();
+            outputThread.join();
+            mergeThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //EX4测试程序
+    public void EX4(int totalNum, int bufferSize, int treeNodeNum, int scope) throws IOException {
+        // 设置输入文件和输出文件的路径
+        String inputFilePath = "./EX4_TestFile/RandomFile.txt";
+        String outputFilePath = "./EX4_TestFile/output.txt";
+        //删除已有文件
+        File file = new File(inputFilePath);
+        file.delete();
+        File file1 = new File(outputFilePath);
+        file1.delete();
+
+        FileIO fc = new FileIO(totalNum);
+        try {
+            fc.CreateRandomFile(inputFilePath, scope);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        // 文件切分排序
+        generateRuns_EX4(inputFilePath, treeNodeNum, bufferSize);
+        System.out.println("分割的文件总数为："+runSize.size());
+        System.out.println("请输入k路归并：");
+        Scanner scanner = new Scanner(System.in);
+        int a = scanner.nextInt();
+        //合并
+        EX4_mergeSort(a, bufferSize, runSize.size());
+    }
     /* EX4-----------------------------------------------------END-------------------------------------------------------*/
 
     // 将缓冲区中的数据写入文件
@@ -540,7 +1022,7 @@ public class ExternalSort {
 
             public void test1() {
                 while (!isfinish) {
-                        System.out.println("test1被唤起，从磁盘读取数据");
+                    System.out.println("test1被唤起，从磁盘读取数据");
                     System.out.println("test1完成，等待唤起");
                     try {
                         barrier.await();
@@ -562,7 +1044,7 @@ public class ExternalSort {
                     a++;
                 }
                 //唤起所有因为barrier.await()而等待的线程
-                isfinish=true;
+                isfinish = true;
                 try {
                     barrier.await();
                 } catch (Exception e) {
